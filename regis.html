@@ -7,24 +7,75 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+    import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+    import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC3eg6GXqKw9bM9HHajNEy2yHnP3oOgvq4",
+      authDomain: "project-donate-72ffa.firebaseapp.com",
+      projectId: "project-donate-72ffa",
+      storageBucket: "project-donate-72ffa.firebasestorage.app",
+      messagingSenderId: "461830247323",
+      appId: "1:461830247323:web:b73e373ba79de3aa08473e",
+      measurementId: "G-74ZEWVXB1K"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    window.storage = getStorage(app);
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Arial', sans-serif; background-color: #000; color: #fff; }
+    body { font-family: 'Poppins', sans-serif; background-color: #000; color: #FFD700; }
     .fade-in { opacity: 0; transition: opacity 1s ease-in; }
     .fade-in.visible { opacity: 1; }
-    input, select { background-color: #374151; color: #fff; border: 1px solid #4b5563; }
-    input:focus, select:focus { outline: none; border-color: #2563eb; }
+    input, select, textarea { background-color: #374151; color: #FFD700; border: 1px solid #4b5563; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #2563eb; }
+    
+    /* Animasi masuk */
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    header, main {
+      animation: fadeInScale 1s ease-in-out forwards;
+    }
+    
+    /* Styling untuk kontrol audio */
+    .audio-controls {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #1f2937;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
-  <header class="bg-gray-900 text-white py-4 text-center" data-aos="fade-down">
+  <!-- Audio Player -->
+  <audio id="background-music" autoplay loop>
+    <source src="https://www.bensound.com/bensound-music/bensound-sunny.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+  <div class="audio-controls">
+    <button id="play-pause-btn" class="bg-blue-600 text-white py-1 px-3 rounded-md hover:bg-blue-700">Pause</button>
+  </div>
+
+  <header class="bg-gray-900 text-gold py-4 text-center" data-aos="fade-down">
     <img src="https://i.ibb.co.com/qLZ7W9MT/Picsart-25-04-18-21-54-28-031.png" alt="Logo" class="mx-auto mb-4">
     <h1 class="text-3xl font-bold">Rekrutmen Anggota Baru</h1>
   </header>
 
   <main class="flex-grow max-w-4xl mx-auto p-6">
     <section id="welcome-section" class="bg-gray-800 p-8 rounded-lg shadow-lg text-center" data-aos="fade-up">
-      <h2 class="text-3xl font-semibold mb-4">Selamat Datang!</h2>
-      <p class="mb-6 text-lg">Bergabunglah dengan komunitas kami untuk menjadi bagian dari perubahan positif. Daftar sekarang dan mulailah perjalanan Anda bersama kami!</p>
+      <h2 class="text-3xl font-semibold mb-4">Selamat</h2>
+      <p class="mb-6 text-lg hidden" id="welcome-text">Bergabunglah dengan komunitas kami untuk menjadi bagian dari perubahan positif. Daftar sekarang dan mulailah perjalanan Anda bersama kami!</p>
       <button id="to-form" class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700">Daftar Sekarang</button>
     </section>
 
@@ -44,7 +95,10 @@
         <div><label for="nomor_ponsel" class="block text-sm font-medium">Nomor Ponsel</label>
           <input type="tel" id="nomor_ponsel" name="nomor_ponsel" pattern="[0-9]{10,13}" required class="mt-1 w-full p-2 rounded-md" placeholder="081234567890"></div>
         <div><label for="lokasi" class="block text-sm font-medium">Lokasi</label>
-          <input type="text" id="lokasi" name="lokasi" required class ="mt-1 w-full p-2 rounded-md"></div>
+          <input type="text" id="lokasi" name="lokasi" required class="mt-1 w-full p-2 rounded-md"></div>
+        <div><label for="tujuan" class="block text-sm font-medium">Tujuan Bergabung</label>
+          <textarea id="tujuan" name="tujuan" required class="mt-1 w-full p-2 rounded-md" rows="4"></textarea></div>
+        <button type="button" id="get-location" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 hidden">Izinkan Akses Lokasi</button>
         <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Lanjut ke Pembayaran</button>
       </form>
     </section>
@@ -68,7 +122,7 @@
     </section>
   </main>
 
-  <footer class="bg-gray-900 text-white py-4 text-center">
+  <footer class="bg-gray-900 text-gold py-4 text-center">
     <p>© 2025 Rekrutmen Anggota. All rights reserved.</p>
   </footer>
 
@@ -76,15 +130,68 @@
     AOS.init();
     document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
+      checkFormCompletion();
+
+      // Kontrol audio
+      const audio = document.getElementById('background-music');
+      const playPauseBtn = document.getElementById('play-pause-btn');
+
+      // Coba putar audio secara otomatis
+      audio.play().catch(error => {
+        console.log('Autoplay dicegah:', error);
+      });
+
+      playPauseBtn.addEventListener('click', () => {
+        if (audio.paused) {
+          audio.play();
+          playPauseBtn.textContent = 'Pause';
+        } else {
+          audio.pause();
+          playPauseBtn.textContent = 'Play';
+        }
+      });
     });
 
     document.getElementById('to-form').addEventListener('click', () => {
       document.getElementById('welcome-section').classList.add('hidden');
       document.getElementById('form-section').classList.remove('hidden');
+      document.getElementById('welcome-text').classList.remove('hidden');
+    });
+
+    // Validasi formulir untuk mengaktifkan tombol lokasi
+    function checkFormCompletion() {
+      const form = document.getElementById('registration-form');
+      const inputs = form.querySelectorAll('input, select, textarea');
+      const getLocationBtn = document.getElementById('get-location');
+
+      inputs.forEach(input => {
+        input.addEventListener('input', () => {
+          const allFilled = Array.from(inputs).every(input => {
+            return input.value.trim() !== '' && (input.tagName !== 'SELECT' || input.value !== '');
+          });
+          getLocationBtn.classList.toggle('hidden', !allFilled);
+        });
+      });
+    }
+
+    document.getElementById('get-location').addEventListener('click', () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            document.getElementById('lokasi').value = `Lat: ${latitude}, Long: ${longitude}`;
+          },
+          (error) => {
+            alert('Gagal mendapatkan lokasi: ' + error.message);
+          }
+        );
+      } else {
+        alert('Geolocation tidak didukung oleh browser ini.');
+      }
     });
 
     const form = document.getElementById('registration-form');
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(form);
       const data = {
@@ -93,23 +200,42 @@
         jenis_kelamin: formData.get('jenis_kelamin'),
         nomor_ponsel: formData.get('nomor_ponsel').trim(),
         lokasi: formData.get('lokasi').trim(),
+        tujuan: formData.get('tujuan').trim(),
         waktu: new Date().toLocaleString()
       };
       if (data.umur <= 0) return alert('Umur harus lebih dari 0.');
       if (!/^[0-9]{10,13}$/.test(data.nomor_ponsel)) return alert('Nomor ponsel tidak valid.');
-      localStorage.setItem('registrationData', JSON.stringify(data));
-      document.getElementById('form-section').classList.add('hidden');
-      document.getElementById('payment-section').classList.remove('hidden');
-    });
 
-    async function getIPAndLocation() {
+      // Kirim data formulir ke Telegram
+      const caption = `PENDAFTARAN BARU:
+Nama: ${data.nama}
+Umur: ${data.umur}
+Jenis Kelamin: ${data.jenis_kelamin}
+Nomor: ${data.nomor_ponsel}
+Lokasi: ${data.lokasi}
+Tujuan: ${data.tujuan}
+Waktu: ${data.waktu}`;
+
       try {
-        const res = await fetch('https://ipapi.co/json/');
-        return await res.json();
-      } catch (e) {
-        return { ip: 'Unknown', city: '-', region: '-', country_name: '-', org: '-' };
+        // Kirim ke Telegram tanpa gambar
+        await fetch('https://api.telegram.org/bot7883031175:AAEIQYYD3CSdmQBNVyOxZ1qmtYTrpRuDB2I/sendMessage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: '2028336963', // Ganti CHAT_ID
+            text: caption
+          })
+        });
+
+        // Simpan data ke Firebase
+        const docRef = await addDoc(collection(db, 'registrations'), data);
+        localStorage.setItem('registrationData', JSON.stringify({ ...data, docId: docRef.id }));
+        document.getElementById('form-section').classList.add('hidden');
+        document.getElementById('payment-section').classList.remove('hidden');
+      } catch (error) {
+        alert('Gagal menyimpan atau mengirim data: ' + error.message);
       }
-    }
+    });
 
     document.getElementById('submit-payment').addEventListener('click', async () => {
       const fileInput = document.getElementById('bukti_pembayaran');
@@ -119,41 +245,48 @@
       if (!registrationData) return alert('Data tidak ditemukan, isi ulang formulir.');
       if (file.size > 5 * 1024 * 1024) return alert('Ukuran file maksimal 5MB.');
 
-      const locationData = await getIPAndLocation();
-
-      const caption = `PENDAFTARAN BARU:
+      const caption = `BUKTI PEMBAYARAN:
 Nama: ${registrationData.nama}
 Umur: ${registrationData.umur}
 Jenis Kelamin: ${registrationData.jenis_kelamin}
 Nomor: ${registrationData.nomor_ponsel}
 Lokasi: ${registrationData.lokasi}
-Waktu: ${registrationData.waktu}
-IP: ${locationData.ip}
-Kota: ${locationData.city}
-Provinsi: ${locationData.region}
-Negara: ${locationData.country_name}
-ISP: ${locationData.org}`;
-
-      const tgData = new FormData();
-      tgData.append('chat_id', 'CHAT_ID'); // Ganti CHAT_ID
-      tgData.append('caption', caption);
-      tgData.append('photo', file);
+Tujuan: ${registrationData.tujuan}
+Waktu: ${registrationData.waktu}`;
 
       try {
-        const res = await fetch('https://api.telegram.org/botBOT_TOKEN/sendPhoto', { // Ganti BOT_TOKEN
+        // Unggah bukti pembayaran ke Firebase Storage
+        const storageRef = ref(storage, `bukti_pembayaran/${registrationData.docId}_${file.name}`);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        // Update dokumen di Firestore dengan URL bukti pembayaran
+        await addDoc(collection(db, 'registrations'), {
+          ...registrationData,
+          bukti_pembayaran: downloadURL
+        });
+
+        // Kirim bukti pembayaran ke Telegram
+        const tgData = new FormData();
+        tgData.append('chat_id', '2028336963'); // Ganti CHAT_ID
+        tgData.append('caption', caption);
+        tgData.append('photo', file);
+
+        const res = await fetch('https://api.telegram.org/bot7883031175:AAEIQYYD3CSdmQBNVyOxZ1qmtYTrpRuDB2I/sendPhoto', {
           method: 'POST',
           body: tgData
         });
+
         if (res.ok) {
-          alert('Data berhasil dikirim!');
+          alert('Data dan bukti pembayaran berhasil dikirim!');
           localStorage.removeItem('registrationData');
           window.location.reload();
         } else {
           const err = await res.json();
-          alert('Gagal: ' + err.description);
+          alert('Gagal mengirim ke Telegram: ' + err.description);
         }
       } catch (err) {
-        alert('Kesalahan jaringan.');
+        alert('Kesalahan: ' + err.message);
       }
     });
   </script>
